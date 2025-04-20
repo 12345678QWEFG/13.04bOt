@@ -1,1 +1,27 @@
-print("Hello world")
+from telegram import Update, ReplyKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+
+def start(update: Update, context: CallbackContext):
+    buttons = [["📅 Показать расписание"], ["❓ Помощь"], ["😊 О школе"]]
+    reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+    update.message.reply_text("Привет! Я твой помощник по расписанию. Выбери действие:", reply_markup=reply_markup)
+
+def schedule(update: Update, context: CallbackContext):
+    schedule_text = """
+    📚 Расписание на неделю:
+    🔹 Понедельник: Математика (10:00)
+    🔹 Вторник: Английский (11:00)
+    🔹 Среда: Физика (09:30)
+    """
+    update.message.reply_text(schedule_text)
+
+def main():
+    updater = Updater(7830598234:AAEszkCRJlLZx834vWEHsXLoauYdLdDcohc)
+    dp = updater.dispatcher
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.regex("^📅 Показать расписание$"), schedule))
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == "__main__":
+    main()
