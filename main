@@ -1,27 +1,38 @@
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, CallbackContext
 
-def start(update: Update, context: CallbackContext):
-    buttons = [["📅 Показать расписание"], ["❓ Помощь"], ["😊 О школе"]]
-    reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True)
-    update.message.reply_text("Привет! Я твой помощник по расписанию. Выбери действие:", reply_markup=reply_markup)
+async def start(update: Update, context: CallbackContext):
+    keyboard = [
+        [InlineKeyboardButton("📅 понедельник", callback_data="monday")],
+        [InlineKeyboardButton("📆 вторник", callback_data="tuesday")],
+        [InlineKeyboardButton("📅 среда", callback_data="wednesday")],
+        [InlineKeyboardButton("📆 четверг", callback_data="thursday")],
+        [InlineKeyboardButton("📅 пятница", callback_data="friday")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("Выберите расписание:", reply_markup=reply_markup)
+    
 
-def schedule(update: Update, context: CallbackContext):
-    schedule_text = """
-    📚 Расписание на неделю:
-    🔹 Понедельник: Математика (10:00)
-    🔹 Вторник: Английский (11:00)
-    🔹 Среда: Физика (09:30)
-    """
-    update.message.reply_text(schedule_text)
+async def button_click(update: Update, context: CallbackContext):
+    query = update.callback_query
+    if query.data == "monday":
+        await query.edit_message_text("Сегодня: английский (9:25), физика (10:25), литература (11:30), алгебра (12:30), география (13:35)")
+    elif query.data == "tuesday":
+        await query.edit_message_text("Сегодня: русский (8:30), литература (9:25), английский (10:25), химия (11:30), история (12:30), геометрия (13:35), обж(14:30)")
+    elif query.data == "wednesday":
+        await query.edit_message_text("Сегодня: английский (8:30), алгебра (9:25), статистика (10:25), физра (11:30), география (12:30), английский (13:35)")
+    elif query.data == "thursday":
+        await query.edit_message_text("Сегодня: русский (8:30), физика (9:25), физика (10:25), физика (11:30), литература (12:30), история (13:35), обществознание(14:30)")
+    elif query.data == "friday":
+        await query.edit_message_text("Сегодня: русский (8:30), геометрия (9:25), физкультура (10:25), алгебра (11:30), информатика (12:30), биология (13:35), химия(14:30)")
+
+
 
 def main():
-    updater = Updater(7830598234:AAEszkCRJlLZx834vWEHsXLoauYdLdDcohc)
-    dp = updater.dispatcher
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.regex("^📅 Показать расписание$"), schedule))
-    updater.start_polling()
-    updater.idle()
+    application = Application.builder().token("7830598234:AAEszkCRJlLZx834vWEHsXLoauYdLdDcohc").build()
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CallbackQueryHandler(button_click))
+    application.run_polling()
 
 if __name__ == "__main__":
     main()
